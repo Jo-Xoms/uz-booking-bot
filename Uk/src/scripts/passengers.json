@@ -1,0 +1,23 @@
+{
+  "trip": {
+    "from": "Київ",
+    "to": "Львів",
+    "date": "",
+    "seats": 2,
+    "coachType": "Купе"
+  },
+  "passengers": [
+    {
+      "lastName": "Хуеев",
+      "firstName": "Вадим",
+      "birthDate": "",
+      "document": "12312443"
+    },
+    {
+      "lastName": "Хуеева",
+      "firstName": "Лидия",
+      "birthDate": "",
+      "document": "12312443"
+    }
+  ]
+}

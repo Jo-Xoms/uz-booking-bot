@@ -1,8 +1,16 @@
 import { chromium } from "playwright";
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const passengers = JSON.parse(fs.readFileSync("./passengers.json", "utf-8"));
-const config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const passengersFile = path.join(__dirname, "passengers.json");
+const data = JSON.parse(fs.readFileSync(passengersFile, "utf-8"));
+
+const config = data.trip;           
+const passengers = data.passengers; 
 
 function log(step) {
   console.log(`🟦 ${step}`);
@@ -26,6 +34,7 @@ async function selectCity(page, placeholder, cityName) {
   await input.fill(cityName);
   await page.waitForSelector("[role='option']");
   await page.locator("[role='option']").first().click();
+  await page.waitForTimeout(800); 
 }
 
 async function waitForTrains(page) {
@@ -40,7 +49,7 @@ async function waitForTrains(page) {
 }
 
 async function chooseTrainWithMostSeats(page) {
-  log("Выбираем поезд/вагон с максимальным количеством свободных мест…");
+  log(`Выбираем поезд/вагон типа '${config.coachType}' (если есть)…`);
 
   await waitForTrains(page);
 
@@ -54,11 +63,15 @@ async function chooseTrainWithMostSeats(page) {
 
   for (const wagon of wagons) {
     try {
-      const text = await wagon.$eval(".Typography--caption", el => el.textContent);
-      const seats = parseInt(text?.match(/\d+/)?.[0] ?? "0", 10);
-      if (seats > maxSeats) {
-        maxSeats = seats;
-        bestWagon = wagon;
+      const typeText = await wagon.$eval("h4.Typography--h4", el => el.textContent.trim());
+      const seatsText = await wagon.$eval(".Typography--caption", el => el.textContent);
+      const seats = parseInt(seatsText?.match(/\d+/)?.[0] ?? "0", 10);
+
+      if (new RegExp(config.coachType, "i").test(typeText)) {
+        if (seats > maxSeats) {
+          maxSeats = seats;
+          bestWagon = wagon;
+        }
       }
     } catch {
       continue;
@@ -66,11 +79,29 @@ async function chooseTrainWithMostSeats(page) {
   }
 
   if (!bestWagon) {
-    throw new Error("Не найдено вагонов с доступными местами.");
+    log(`⚠️ Не найдено '${config.coachType}', выбираем любой с максимальными местами…`);
+    for (const wagon of wagons) {
+      try {
+        const seatsText = await wagon.$eval(".Typography--caption", el => el.textContent);
+        const seats = parseInt(seatsText?.match(/\d+/)?.[0] ?? "0", 10);
+        if (seats > maxSeats) {
+          maxSeats = seats;
+          bestWagon = wagon;
+        }
+      } catch {
+        continue;
+      }
+    }
+  }
+
+  if (!bestWagon) {
+    throw new Error("Не найдено доступных вагонов.");
   }
 
   await bestWagon.click();
-  log(`Кликнули по вагону с ${maxSeats} местами.`);
+  await page.waitForSelector("button.WagonUnitBed", { timeout: 10000 }); // ⏸️ ждём загрузку мест
+  await page.waitForTimeout(1000);
+  log(`Кликнули по вагону (тип: ${config.coachType ?? "любой"}) с ${maxSeats} местами.`);
 }
 
 async function pickSeats(page, seatsToBook) {
@@ -96,6 +127,7 @@ async function pickSeats(page, seatsToBook) {
       await btn.click();
       log(`✅ Выбрали место №${seatNumber}`);
       clicked++;
+      await page.waitForTimeout(500); 
     } catch (e) {
       log(`⚠️ Не удалось кликнуть по месту №${seatNumber}: ${e.message}`);
     }
@@ -115,7 +147,7 @@ async function pickSeats(page, seatsToBook) {
     throw new Error("Не нашли ссылку «Перейти до пасажирів».");
   }
 
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(2000);
   await goToPassengers.click();
   log("Перешли к заполнению пассажиров.");
 }
@@ -134,10 +166,10 @@ async function fillPassengers(page, seatsToBook) {
 
     await fn.waitFor({ state: "visible", timeout: 10000 });
 
-    if (await fn.count()) await fn.fill(p.firstName);
-    if (await ln.count()) await ln.fill(p.lastName);
-    if (await bd.count()) await bd.fill(p.birthDate);
-    if (await dn.count()) await dn.fill(p.document);
+    if (await fn.count()) { await fn.fill(p.firstName); await page.waitForTimeout(300); }
+    if (await ln.count()) { await ln.fill(p.lastName); await page.waitForTimeout(300); }
+    if (await bd.count()) { await bd.fill(p.birthDate); await page.waitForTimeout(300); }
+    if (await dn.count()) { await dn.fill(p.document); await page.waitForTimeout(300); }
 
     log(`👤 Пассажир ${i + 1}: ${p.firstName} ${p.lastName} заполнен`);
 
@@ -165,6 +197,8 @@ async function fillPassengers(page, seatsToBook) {
   log("Заполняем форму поиска…");
   await selectCity(page, "Звідки", config.from);
   await selectCity(page, "Куди", config.to);
+
+  await page.waitForTimeout(5000);
 
   log("Выбери дату вручную…");
   await page.waitForFunction(() => document.querySelector("#startDate")?.value !== "");
