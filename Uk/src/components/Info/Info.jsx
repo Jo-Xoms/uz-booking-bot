@@ -7,7 +7,7 @@ function Info() {
     to: '',
     date: '',
     seats: '',
-    coachType: '' // ← если пусто, то скрипт сам выберет
+    coachType: ''
   });
 
   const [passengers, setPassengers] = useState([

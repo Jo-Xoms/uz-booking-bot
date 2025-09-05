@@ -2,22 +2,22 @@
   "trip": {
     "from": "Київ",
     "to": "Львів",
-    "date": "",
+    "date": "2025-09-11",
     "seats": 2,
-    "coachType": "Купе"
+    "coachType": "Плацкарт"
   },
   "passengers": [
     {
-      "lastName": "Хуеев",
-      "firstName": "Вадим",
+      "lastName": "Гулевський",
+      "firstName": "Микита",
       "birthDate": "",
-      "document": "12312443"
+      "document": "23232323"
     },
     {
-      "lastName": "Хуеева",
-      "firstName": "Лидия",
+      "lastName": "Карогод",
+      "firstName": "Кристина",
       "birthDate": "",
-      "document": "12312443"
+      "document": "23232434"
     }
   ]
 }

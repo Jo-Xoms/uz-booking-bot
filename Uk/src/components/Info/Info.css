@@ -1,46 +1,102 @@
 .info-form {
-  max-width: 600px;
-  margin: auto;
-  font-family: Arial, sans-serif;
+  max-width: 720px;
+  margin: 50px auto;
+  padding: 28px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(145deg, #1b1b1b, #222);
+  color: #f0f0f0;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+  transition: transform 0.3s ease;
+}
+
+.info-form:hover {
+  transform: translateY(-3px);
 }
 
 .info-form h2,
 .info-form h3 {
   text-align: center;
+  margin-bottom: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(0, 200, 150, 0.3);
 }
 
 .info-form label {
   display: block;
   margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #ddd;
 }
 
 .info-form input,
 .info-form select {
   width: 100%;
-  padding: 8px;
-  margin-top: 4px;
-  margin-bottom: 12px;
+  padding: 12px 14px;
+  margin-top: 6px;
+  margin-bottom: 18px;
   box-sizing: border-box;
+  background-color: #2c2c2c;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: #f0f0f0;
+  transition: border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
+}
+
+.info-form input:focus,
+.info-form select:focus {
+  border-color: #00c896;
+  background-color: #333;
+  outline: none;
+  box-shadow: 0 0 6px #00c89688;
 }
 
 .passenger {
-  padding: 10px;
-  border: 1px solid #ccc;
-  margin-bottom: 16px;
-  border-radius: 4px;
+  padding: 18px;
+  border: 1px solid #444;
+  margin-bottom: 22px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #242424, #2d2d2d);
+  transition: box-shadow 0.3s;
+}
+
+.passenger:hover {
+  box-shadow: 0 0 12px rgba(0, 200, 150, 0.2);
 }
 
 button {
   display: block;
   width: 100%;
-  padding: 10px;
-  background-color: #0a7;
-  color: white;
-  border: none;
-  cursor: pointer;
+  padding: 14px;
+  margin-top: 14px;
+  border-radius: 10px;
   font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.4s, transform 0.2s, box-shadow 0.3s;
+}
+
+button[type="submit"] {
+  background: linear-gradient(135deg, #00c896, #009f75);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 200, 150, 0.3);
+}
+
+button[type="button"] {
+  background: linear-gradient(135deg, #3a7bd5, #3a6073);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(58, 123, 213, 0.3);
 }
 
 button:hover {
-  background-color: #095;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+button:active {
+  transform: translateY(0) scale(0.98);
 }

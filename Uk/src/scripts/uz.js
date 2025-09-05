@@ -37,6 +37,24 @@ async function selectCity(page, placeholder, cityName) {
   await page.waitForTimeout(800); 
 }
 
+async function selectDate(page, dateStr) {
+  log(`Выбираем дату: ${dateStr}`);
+
+  const dateInput = page.locator("#startDate");
+  await dateInput.click();
+
+  const calendar = page.locator("div.dp__calendar").first();
+  await calendar.waitFor({ state: "visible", timeout: 10000 });
+
+  const dayId = `dp-${dateStr}`;
+  const dayLocator = page.locator(`#${dayId} .dp__cell_inner`);
+
+  await dayLocator.waitFor({ state: "visible", timeout: 10000 });
+  await dayLocator.click();
+
+  log(`📅 Дата ${dateStr} выбрана`);
+}
+
 async function waitForTrains(page) {
   log("Ждем результатов поиска поездов…");
   const deadline = Date.now() + 120_000;
@@ -99,7 +117,7 @@ async function chooseTrainWithMostSeats(page) {
   }
 
   await bestWagon.click();
-  await page.waitForSelector("button.WagonUnitBed", { timeout: 10000 }); // ⏸️ ждём загрузку мест
+  await page.waitForSelector("button.WagonUnitBed", { timeout: 10000 }); 
   await page.waitForTimeout(1000);
   log(`Кликнули по вагону (тип: ${config.coachType ?? "любой"}) с ${maxSeats} местами.`);
 }
@@ -198,10 +216,7 @@ async function fillPassengers(page, seatsToBook) {
   await selectCity(page, "Звідки", config.from);
   await selectCity(page, "Куди", config.to);
 
-  await page.waitForTimeout(5000);
-
-  log("Выбери дату вручную…");
-  await page.waitForFunction(() => document.querySelector("#startDate")?.value !== "");
+  await selectDate(page, config.date);
 
   const searchBtn = await firstVisibleLocator(page, [
     (p) => p.getByRole("button", { name: /Знайти|search/i }),
